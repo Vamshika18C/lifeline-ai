@@ -358,72 +358,214 @@ function showResult(text, mode){
 function runDemo(){
 
   const userInput =
-    document.getElementById("input")
-    .value.trim();
+    document.getElementById("input").value.trim();
 
   if(!userInput && !imageData){
-
-    alert(
-      "Please enter some information, speak something, or add a photo."
-    );
-
+    alert("Please enter some information, speak something, or add a photo.");
     return;
   }
 
+  const text = userInput.toLowerCase();
 
-  showResult(
+  let category = "Other";
+  let urgency = "Low";
+  let intent = "The person wants help understanding a real-world situation and deciding what to do next.";
+  let keyInfo = "";
+  let missingInfo = "";
+  let actionPlan = "";
+
+  /* TRAFFIC */
+  if(
+    text.includes("traffic") ||
+    text.includes("road") ||
+    text.includes("route") ||
+    text.includes("jam")
+  ){
+
+    category = "Traffic";
+    urgency = "Medium";
+
+    intent =
+      "The person wants to understand the traffic situation and choose a suitable route.";
+
+    keyInfo =
+      "• Heavy traffic or a road-related problem was mentioned.\n" +
+      "• The user is looking for practical travel information.\n" +
+      "• An alternative route may be needed.";
+
+    missingInfo =
+      "• Exact current location\n" +
+      "• Destination\n" +
+      "• Current traffic conditions\n" +
+      "• Available alternative routes";
+
+    actionPlan =
+      "1. Check current traffic conditions from a reliable source.\n" +
+      "2. Confirm the exact starting point and destination.\n" +
+      "3. Compare available alternative routes.\n" +
+      "4. Choose a route using current travel information.\n" +
+      "5. Re-check conditions before starting the journey.";
+  }
+
+  /* WEATHER */
+  else if(
+    text.includes("weather") ||
+    text.includes("rain") ||
+    text.includes("storm")
+  ){
+
+    category = "Weather";
+    urgency = "Medium";
+
+    intent =
+      "The person wants to understand current weather conditions and plan accordingly.";
+
+    keyInfo =
+      "• A weather-related situation was mentioned.\n" +
+      "• The user needs practical information for planning.";
+
+    missingInfo =
+      "• Exact location\n" +
+      "• Current weather conditions\n" +
+      "• Expected weather changes\n" +
+      "• Travel plans";
+
+    actionPlan =
+      "1. Check the latest weather information.\n" +
+      "2. Confirm the exact location.\n" +
+      "3. Check warnings or alerts from reliable authorities.\n" +
+      "4. Adjust plans according to verified conditions.";
+  }
+
+  /* MEDICAL */
+  else if(
+    text.includes("sick") ||
+    text.includes("pain") ||
+    text.includes("dizzy") ||
+    text.includes("weak") ||
+    text.includes("fever") ||
+    text.includes("unwell")
+  ){
+
+    category = "Medical";
+    urgency = "High";
+
+    intent =
+      "The person appears to need help deciding what information to collect and what appropriate support to seek.";
+
+    keyInfo =
+      "• The user described a health-related concern.\n" +
+      "• The situation may require professional assessment.";
+
+    missingInfo =
+      "• Person's age\n" +
+      "• Exact symptoms and duration\n" +
+      "• Relevant medical history\n" +
+      "• Current location\n" +
+      "• Whether qualified help is already available";
+
+    actionPlan =
+      "1. Stay with the person and assess whether immediate help is needed.\n" +
+      "2. Contact a qualified medical professional for appropriate advice.\n" +
+      "3. Provide accurate information about the symptoms and situation.\n" +
+      "4. If the situation appears serious or rapidly worsening, contact local emergency services.";
+  }
+
+  /* TRAVEL */
+  else if(
+    text.includes("travel") ||
+    text.includes("bus") ||
+    text.includes("train") ||
+    text.includes("airport")
+  ){
+
+    category = "Travel";
+    urgency = "Low";
+
+    intent =
+      "The person wants practical information to plan or manage a journey.";
+
+    keyInfo =
+      "• A travel-related request was provided.\n" +
+      "• The user needs information to make a travel decision.";
+
+    missingInfo =
+      "• Starting location\n" +
+      "• Destination\n" +
+      "• Travel date and time\n" +
+      "• Preferred transport";
+
+    actionPlan =
+      "1. Confirm the starting point and destination.\n" +
+      "2. Check current transport information.\n" +
+      "3. Compare available options.\n" +
+      "4. Verify timings before travelling.";
+  }
+
+  /* DEFAULT */
+  else {
+
+    category = "Other";
+    urgency = "Low";
+
+    intent =
+      "The person wants help understanding their situation and identifying useful next steps.";
+
+    keyInfo =
+      "• The user provided a real-world situation.\n" +
+      "• The information has been interpreted from the user's input.";
+
+    missingInfo =
+      "• Exact location\n" +
+      "• Current conditions\n" +
+      "• Relevant supporting information\n" +
+      "• Information needed for verification";
+
+    actionPlan =
+      "1. Identify the most important facts.\n" +
+      "2. Identify what information is missing.\n" +
+      "3. Verify important information using reliable sources.\n" +
+      "4. Take appropriate next steps based on verified information.";
+  }
+
+  const result =
+
 `INTENT:
-The person wants help understanding a real-world situation and deciding what to do next.
+${intent}
 
 CATEGORY:
-Safety / Other
+${category}
 
 KEY INFORMATION:
-• The user has provided a real-world situation.
-• The user's exact location and current conditions may be important.
-• The user wants practical next steps.
+${keyInfo}
 
 MISSING INFORMATION:
-• Exact location
-• Current time
-• Specific conditions
-• People or services currently available
-• Any additional evidence needed to confirm the situation
+${missingInfo}
 
 VERIFICATION:
 Facts provided:
-• The situation was described by the user.
+• The information comes from the user's input.
 
 Not verified:
-• Location
-• Current conditions
-• External information
-• Any assumptions about what is happening
+• Current external conditions
+• Exact location
+• Any information not directly provided by the user
 
 URGENCY:
-Medium
-
-The situation should be assessed using reliable and current information before taking action.
+${urgency}
 
 ACTION PLAN:
-1. Identify the exact location and current situation.
-2. Collect the most important missing information.
-3. Check reliable sources before making a decision.
-4. Contact an appropriate qualified person or service if the situation becomes serious.
-5. Avoid treating assumptions as verified facts.
+${actionPlan}
 
-NOTE:
+DEMO NOTE:
 This is a LifeLine AI Demo Mode response.
 No Gemini API call was made.
 
 USER INPUT:
-${userInput || "Photo provided by the user."}
+${userInput || "Photo provided by the user."}`;
 
-${imageData ? "\nPHOTO STATUS:\nA photo was provided. Visual interpretation requires the Gemini-powered version." : ""}`,
-    "demo"
-  );
+  showResult(result, "demo");
 }
-
 
 /* =========================
    GEMINI MODE
